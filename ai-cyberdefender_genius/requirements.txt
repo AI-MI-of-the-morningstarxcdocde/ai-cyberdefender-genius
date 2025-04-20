@@ -1,0 +1,8 @@
+flask
+pyyaml
+scikit-learn
+numpy
+pandas
+requests
+cryptography
+pytest
