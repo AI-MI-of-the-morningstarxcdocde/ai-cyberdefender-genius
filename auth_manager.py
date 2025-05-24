@@ -68,8 +68,8 @@ class Session:
     def get_user(self):
         return self.user
 
-# Usage:
-# from session import Session
-# session = Session()
-# session.set_user("admin")
-# print(session.get_user())
+    # Usage:
+    # from session import Session
+    # session = Session()
+    # session.set_user("admin")
+    # print(session.get_user())

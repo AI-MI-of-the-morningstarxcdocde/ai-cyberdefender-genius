@@ -17,9 +17,6 @@ class SettingsWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        self.list_widget = QListWidget()
-        layout.addWidget(self.list_widget)
-
         # --- Change Password Section ---
         password_section = QVBoxLayout()
         password_label = QLabel("Change Password")
@@ -39,6 +36,8 @@ class SettingsWindow(QMainWindow):
         self.change_password_button = QPushButton("Change Password")
         self.change_password_button.clicked.connect(self.change_password)
         password_section.addWidget(self.change_password_button)
+
+        password_section.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         layout.addLayout(password_section)
 
