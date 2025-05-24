@@ -12,8 +12,10 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QLineEdit, QMessageBox
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QMovie
+import auth_manager
 from firewall_manager import FirewallManager
-from auth_manager import AuthManager
+from auth_manager import AuthManager, Session
+from settings import SettingsWindow
 
 class LoginWindow(QMainWindow):
     def __init__(self):
@@ -32,7 +34,7 @@ class LoginWindow(QMainWindow):
 
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Password")
-        self.password_input.setEchoMode(QLineEdit.Password)
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
         layout.addWidget(self.password_input)
 
         self.login_button = QPushButton("Login")
@@ -45,6 +47,8 @@ class LoginWindow(QMainWindow):
         username = self.username_input.text()
         password = self.password_input.text()
         if self.auth_manager.verify_user(username, password):
+            Session().set_user(username)
+            
             self.main_window = MainWindow()
             self.main_window.show()
             self.close()
@@ -68,7 +72,7 @@ class MainWindow(QMainWindow):
 
         # Animated logo or gif
         self.label_animation = QLabel()
-        self.label_animation.setAlignment(Qt.AlignCenter)
+        self.label_animation.setAlignment(Qt.AlignmentFlag.AlignCenter)
         movie = QMovie(":/resources/animated_logo.gif")  # Placeholder path
         self.label_animation.setMovie(movie)
         movie.start()
@@ -76,18 +80,23 @@ class MainWindow(QMainWindow):
 
         # Status label
         self.status_label = QLabel("System Status: Monitoring...")
-        self.status_label.setAlignment(Qt.AlignCenter)
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.status_label)
 
         # Firewall status label
         self.firewall_status_label = QLabel(f"Firewall Status: {self.firewall_manager.get_status()}")
-        self.firewall_status_label.setAlignment(Qt.AlignCenter)
+        self.firewall_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.firewall_status_label)
 
         # Button to update firewall rules
         self.update_firewall_button = QPushButton("Update Firewall Rules")
         self.update_firewall_button.clicked.connect(self.update_firewall_rules)
         layout.addWidget(self.update_firewall_button)
+
+        # Settings button
+        self.settings_button = QPushButton("Settings")
+        self.settings_button.clicked.connect(self.open_settings)
+        layout.addWidget(self.settings_button)
 
         # Timer for live monitoring updates
         self.timer = QTimer()
@@ -102,6 +111,11 @@ class MainWindow(QMainWindow):
 
     def update_firewall_rules(self):
         self.firewall_manager.update_firewall_rules()
+
+    def open_settings(self):
+        if not hasattr(self, 'settings_window') or not self.settings_window.isVisible():
+            self.settings_window = SettingsWindow(self)
+            self.settings_window.show()
 
 def main():
     app = QApplication(sys.argv)
