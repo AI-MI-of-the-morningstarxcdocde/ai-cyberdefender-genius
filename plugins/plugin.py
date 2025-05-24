@@ -42,15 +42,9 @@ class PluginMessage:
         return self.level > other.level
 
 class Plugin(ABC):
+    name: str
+    description: str
     active: bool
-
-    @abstractmethod
-    def name(self) -> str:
-        pass
-
-    @abstractmethod
-    def description(self) -> str:
-        pass
 
     @abstractmethod
     def start(self) -> Optional[PluginMessage]:
@@ -75,12 +69,12 @@ class Plugin(ABC):
         """
         Starts the plugin. Wraps the output into `prefix_stdout` to show plugin name before each line.
         """
-        with prefix_stdout(f"[PLUGIN {self.name()}] "):
+        with prefix_stdout(f"[PLUGIN {self.name}] "):
             self.start()
 
     def stop_plugin(self):
         """
         Stops the plugin. Wraps the output into `prefix_stdout` to show plugin name before each line.
         """
-        with prefix_stdout(f"[PLUGIN {self.name()}] "):
+        with prefix_stdout(f"[PLUGIN {self.name}] "):
             self.stop()

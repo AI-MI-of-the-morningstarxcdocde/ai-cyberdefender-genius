@@ -6,12 +6,8 @@ from plugins.plugin import Plugin, PluginMessage, StatusLevel
 class SamplePlugin(Plugin):
     def __init__(self):
         self.active = False
-    
-    def name(self):
-        return "Sample Plugin"
-    
-    def description(self) -> str:
-        return "A simple example plugin."
+        self.name = "Sample Plugin"
+        self.description = "A simple example plugin."
     
     def widget(self) -> QWidget:
         return QLabel("Hello from Sample Plugin!")
