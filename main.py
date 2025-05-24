@@ -14,6 +14,8 @@ from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QMovie
 from firewall_manager import FirewallManager
 from auth_manager import AuthManager
+from plugins.plugin import Plugin
+from plugins.load_plugins import load_plugins
 
 class LoginWindow(QMainWindow):
     def __init__(self):
@@ -79,6 +81,11 @@ class MainWindow(QMainWindow):
         self.status_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.status_label)
 
+        # Plugins status label
+        self.plugins_status_label = QLabel("Loading plugins...")
+        self.plugins_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.plugins_status_label)
+
         # Firewall status label
         self.firewall_status_label = QLabel(f"Firewall Status: {self.firewall_manager.get_status()}")
         self.firewall_status_label.setAlignment(Qt.AlignCenter)
@@ -89,17 +96,46 @@ class MainWindow(QMainWindow):
         self.update_firewall_button.clicked.connect(self.update_firewall_rules)
         layout.addWidget(self.update_firewall_button)
 
+        # Load plugins
+        self.plugins = load_plugins(Plugin)
+
+        # Start plugins
+        self.start_plugins()
+
         # Timer for live monitoring updates
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_status)
         self.timer.start(2000)  # Update every 2 seconds
 
     def update_status(self):
-        # Placeholder for real-time system monitoring logic
-        # This should gather system info and update the UI accordingly
         self.status_label.setText("System Status: All systems normal.")
+
+        if len(self.plugins) == 0:
+            self.plugins_status_label.setText(f"No plugins loaded.")
+        else:
+            # Get status of plugins
+            statuses = [max(plugin.report_status()).level for plugin in self.plugins]
+            status = max(statuses)
+
+            self.plugins_status_label.setText(f"{len(self.plugins)} plugin{'s' if len(self.plugins) != 1 else ''} loaded. Status: {status}")
+        
         self.firewall_status_label.setText(f"Firewall Status: {self.firewall_manager.get_status()}")
 
+    def start_plugins(self):
+        self.plugins_status_label.setText("Starting plugins...")
+        for plugin in self.plugins:
+            plugin.start_plugin()
+
+    def stop_plugins(self):
+        self.plugins_status_label.setText("Stopping plugins...")
+        for plugin in self.plugins:
+            plugin.stop_plugin()
+        
+        self.plugins_status_label.setText("Plugins stopped.")
+
+    def closeEvent(self, event):
+        self.stop_plugins()
+        
     def update_firewall_rules(self):
         self.firewall_manager.update_firewall_rules()
 
