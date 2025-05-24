@@ -7,10 +7,11 @@ from enum import Enum, auto
 from utils.prefix_stdout import prefix_stdout
 
 class StatusLevel(Enum):
-    OK = auto()         # Running normally
-    HINT = auto()       # Hint available to improve functionality
-    WARNING = auto()    # Something needs attention
-    ERROR = auto()      # Something failed
+    OK = auto()             # Running normally
+    HINT = auto()           # Hint available to improve functionality
+    WARNING = auto()        # Something needs attention
+    ERROR = auto()          # Something failed
+    VULNERABILITY = auto()  # Plugin found a vulnerability
 
     def __str__(self):
         return self.name
