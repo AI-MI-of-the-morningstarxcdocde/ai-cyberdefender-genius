@@ -9,6 +9,7 @@ the AI-CyberDefender-GUI application. Provides login functionality and session m
 import hashlib
 import json
 import os
+from typing import Optional
 
 class AuthManager:
     def __init__(self, credentials_file='credentials.json'):
@@ -39,3 +40,36 @@ class AuthManager:
         self.users[username] = self.hash_password(password)
         with open(self.credentials_file, 'w') as f:
             json.dump(self.users, f)
+    
+    def change_password(self, username: str, old_password: str, new_password: str) -> str:
+        if username not in self.users:
+            return "user_not_found"
+        if self.hash_password(old_password) != self.users[username]:
+            return "wrong_password"
+        if len(new_password) < 8: # TODO: Implement more secure password validation
+            return "insecure_password"
+        self.users[username] = self.hash_password(new_password)
+        with open(self.credentials_file, 'w') as f:
+            json.dump(self.users, f)
+        return "success"
+
+class Session:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Session, cls).__new__(cls)
+            cls._instance.user = None
+        return cls._instance
+
+    def set_user(self, username):
+        self.user: Optional[str] = username
+
+    def get_user(self):
+        return self.user
+
+    # Usage:
+    # from session import Session
+    # session = Session()
+    # session.set_user("admin")
+    # print(session.get_user())
